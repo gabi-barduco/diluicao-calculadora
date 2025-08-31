@@ -1,138 +1,116 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Diluição</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Diluição de Procaína</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>🔬 Calculadora de Diluição</h1>
-    <p>Ferramenta prática para preparar soluções de forma rápida e precisa.</p>
-  </header>
+<div class="container">
+  <h1>🔬 Calculadora de Diluição de Procaína 💉</h1>
+  <p class="intro">Use esta ferramenta para calcular volumes de procaína e soro. Preencha os campos conforme desejado e siga os passos abaixo.</p>
 
-  <main>
-    <section class="card">
-      <h2>Preencha os dados</h2>
-      <form id="calcForm">
-        <div class="form-group">
-          <label for="concInicial">Concentração inicial (%)</label>
-          <input type="number" id="concInicial" step="0.01" required>
-        </div>
+  <div class="section">
+    <h2>📌 Passo 1: Concentração da Procaína</h2>
+    <p>Informe a concentração inicial da solução de procaína e a concentração final que deseja obter.</p>
+    <label for="concInicial">Concentração Inicial (%)</label>
+    <input type="number" id="concInicial" step="0.01">
+    <label for="concFinal">Concentração Final Desejada (%)</label>
+    <input type="number" id="concFinal" step="0.01">
+  </div>
 
-        <div class="form-group">
-          <label for="concFinal">Concentração final desejada (%)</label>
-          <input type="number" id="concFinal" step="0.01" required>
-        </div>
+  <div class="section">
+    <h2>🧪 Passo 2: Volume</h2>
+    <p>Informe um dos volumes: o volume final desejado ou o volume de soro disponível. Se preencher ambos, o resultado mostrará os dois cálculos.</p>
+    <label for="volFinal">Volume Final Desejado (mL)</label>
+    <input type="number" id="volFinal" step="0.01">
+    <label for="volSoro">Volume de Soro Disponível (mL)</label>
+    <input type="number" id="volSoro" step="0.01">
+  </div>
 
-        <div class="form-group">
-          <label for="volFinal">Volume final (mL)</label>
-          <input type="number" id="volFinal" step="0.01">
-        </div>
+  <div class="buttons">
+    <button class="calc" onclick="calcularDiluição()">🧮 Calcular</button>
+    <button class="save" onclick="salvarResultado()">💾 Salvar Resultado</button>
+    <button class="clear" onclick="limparTudo()">🗑️ Limpar</button>
+    <button class="export" onclick="exportarHistorico()">📤 Exportar Histórico</button>
+  </div>
 
-        <div class="form-group">
-          <label for="volSolvente">Volume de solvente (mL)</label>
-          <input type="number" id="volSolvente" step="0.01">
-        </div>
+  <div id="resultado">O resultado aparecerá aqui.</div>
+  <div id="historico"><strong>📜 Histórico:</strong><br></div>
+</div>
 
-        <div class="buttons">
-          <button type="button" id="calcularBtn">Calcular</button>
-          <button type="button" id="salvarBtn">Salvar Resultado</button>
-          <button type="button" id="historicoBtn">Ver Histórico</button>
-        </div>
-      </form>
-    </section>
+<footer>
+  <p><strong>Nivea Schrann</strong> - Farmacêutica / Terapeuta Neural<br>
+  📷 <a href="https://www.instagram.com/niveamariaschrann" target="_blank">@niveamariaschrann</a> | 
+  📞 <a href="https://wa.me/5541999146610" target="_blank">(41) 99914-6610</a></p>
+</footer>
 
-    <section class="card resultado">
-      <h2>Resultado</h2>
-      <p id="resultado">Preencha os campos e clique em "Calcular".</p>
-    </section>
+<script>
+function calcularDiluição() {
+  let ci = parseFloat(document.getElementById("concInicial").value);
+  let cf = parseFloat(document.getElementById("concFinal").value);
+  let vf = parseFloat(document.getElementById("volFinal").value);
+  let vs = parseFloat(document.getElementById("volSoro").value);
+  let resultado = "";
 
-    <section class="card historico" id="historicoSecao" style="display:none;">
-      <h2>Histórico de Cálculos</h2>
-      <ul id="historicoLista"></ul>
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 - Sua Marca | Ferramenta de apoio, confira sempre antes do uso prático.</p>
-  </footer>
-
-  <script>
-    const resultadoEl = document.getElementById("resultado");
-    const historicoSecao = document.getElementById("historicoSecao");
-    const historicoLista = document.getElementById("historicoLista");
-
-    document.getElementById("calcularBtn").addEventListener("click", calcular);
-    document.getElementById("salvarBtn").addEventListener("click", salvarResultado);
-    document.getElementById("historicoBtn").addEventListener("click", mostrarHistorico);
-
-    function calcular() {
-      const ci = parseFloat(document.getElementById("concInicial").value);
-      const cf = parseFloat(document.getElementById("concFinal").value);
-      const vf = parseFloat(document.getElementById("volFinal").value);
-      const vs = parseFloat(document.getElementById("volSolvente").value);
-
-      if (isNaN(ci) || isNaN(cf) || (isNaN(vf) && isNaN(vs))) {
-        resultadoEl.textContent = "⚠️ Preencha corretamente todos os campos necessários.";
-        return;
-      }
-
-      if (cf >= ci) {
-        resultadoEl.textContent = "⚠️ A concentração final deve ser menor que a inicial.";
-        return;
-      }
-
-      let volInicial, volSolvente, volFinal;
-
-      if (!isNaN(vf)) {
-        volInicial = (cf * vf) / ci;
-        volSolvente = vf - volInicial;
-        volFinal = vf;
-      } else {
-        volInicial = (vs * cf) / (ci - cf);
-        volFinal = volInicial + vs;
-        volSolvente = vs;
-      }
-
-      resultadoEl.innerHTML = `
-        <strong>Resultados do cálculo:</strong><br>
-        ➤ Volume da solução inicial: <b>${volInicial.toFixed(2)} mL</b><br>
-        ➤ Volume de solvente: <b>${volSolvente.toFixed(2)} mL</b><br>
-        ➤ Volume final: <b>${volFinal.toFixed(2)} mL</b>
-      `;
+  if (isNaN(ci) || isNaN(cf)) {
+    resultado = "⚠️ Preencha as concentrações corretamente.";
+  } else if (cf > ci) {
+    resultado = "⚠️ A concentração final não pode ser maior que a inicial.";
+  } else {
+    let r1 = "", r2 = "";
+    if (!isNaN(vf)) {
+      let volProcaína = (cf * vf)/ci;
+      let volSoro = vf - volProcaína;
+      r1 = `✅ Para obter ${vf} mL de solução a ${cf}%:\n➡️ ${volProcaína.toFixed(2)} mL de procaína\n➡️ ${volSoro.toFixed(2)} mL de soro\n\n`;
     }
-
-    function salvarResultado() {
-      const texto = resultadoEl.innerText;
-      if (texto.includes("Resultados")) {
-        const data = new Date().toLocaleString();
-        const entrada = { data, texto };
-        let historico = JSON.parse(localStorage.getItem("historicoDil")) || [];
-        historico.push(entrada);
-        localStorage.setItem("historicoDil", JSON.stringify(historico));
-        alert("✅ Resultado salvo com sucesso!");
-      } else {
-        alert("⚠️ Calcule antes de salvar.");
-      }
+    if (!isNaN(vs)) {
+      let volProcaína = (cf * vs)/(ci - cf);
+      let volTotal = volProcaína + vs;
+      r2 = `✅ Com ${vs} mL de soro:\n➡️ ${volProcaína.toFixed(2)} mL de procaína\n➡️ ${vs.toFixed(2)} mL de soro\n📏 Volume final: ${volTotal.toFixed(2)} mL`;
     }
+    resultado = r1 + r2 || "⚠️ Preencha pelo menos um campo de volume.";
+  }
+  document.getElementById("resultado").innerText = resultado;
+}
 
-    function mostrarHistorico() {
-      const historico = JSON.parse(localStorage.getItem("historicoDil")) || [];
-      historicoLista.innerHTML = "";
-      if (historico.length === 0) {
-        historicoLista.innerHTML = "<li>Nenhum cálculo salvo ainda.</li>";
-      } else {
-        historico.forEach(item => {
-          const li = document.createElement("li");
-          li.textContent = `[${item.data}] ${item.texto}`;
-          historicoLista.appendChild(li);
-        });
-      }
-      historicoSecao.style.display = "block";
-    }
-  </script>
+function salvarResultado() {
+  let res = document.getElementById("resultado").innerText;
+  if (!res || res.includes("⚠️")) return;
+  let hist = JSON.parse(localStorage.getItem("historicoDiluições")) || [];
+  hist.push(res);
+  localStorage.setItem("historicoDiluições", JSON.stringify(hist));
+  mostrarHistorico();
+}
+
+function mostrarHistorico() {
+  let div = document.getElementById("historico");
+  let hist = JSON.parse(localStorage.getItem("historicoDiluições")) || [];
+  div.innerHTML = "<strong>📜 Histórico:</strong><br>" + hist.map((h,i)=>`#${i+1}: ${h}`).join("<br><br>");
+}
+
+function limparTudo() {
+  document.getElementById("concInicial").value="";
+  document.getElementById("concFinal").value="";
+  document.getElementById("volFinal").value="";
+  document.getElementById("volSoro").value="";
+  document.getElementById("resultado").innerText="O resultado aparecerá aqui.";
+}
+
+function exportarHistorico() {
+  let hist = JSON.parse(localStorage.getItem("historicoDiluições")) || [];
+  if(hist.length===0) return;
+  let conteudo = "Histórico de Diluições:\n\n" + hist.join("\n\n");
+  let blob = new Blob([conteudo],{type:"text/plain"});
+  let link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "historico_diluicoes.txt";
+  link.click();
+}
+
+window.onload = mostrarHistorico;
+</script>
 </body>
 </html>
