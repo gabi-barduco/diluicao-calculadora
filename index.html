@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Diluição</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>🔬 Calculadora de Diluição</h1>
+    <p>Ferramenta prática para preparar soluções de forma rápida e precisa.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Preencha os dados</h2>
+      <form id="calcForm">
+        <div class="form-group">
+          <label for="concInicial">Concentração inicial (%)</label>
+          <input type="number" id="concInicial" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+          <label for="concFinal">Concentração final desejada (%)</label>
+          <input type="number" id="concFinal" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+          <label for="volFinal">Volume final (mL)</label>
+          <input type="number" id="volFinal" step="0.01">
+        </div>
+
+        <div class="form-group">
+          <label for="volSolvente">Volume de solvente (mL)</label>
+          <input type="number" id="volSolvente" step="0.01">
+        </div>
+
+        <div class="buttons">
+          <button type="button" id="calcularBtn">Calcular</button>
+          <button type="button" id="salvarBtn">Salvar Resultado</button>
+          <button type="button" id="historicoBtn">Ver Histórico</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card resultado">
+      <h2>Resultado</h2>
+      <p id="resultado">Preencha os campos e clique em "Calcular".</p>
+    </section>
+
+    <section class="card historico" id="historicoSecao" style="display:none;">
+      <h2>Histórico de Cálculos</h2>
+      <ul id="historicoLista"></ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 - Sua Marca | Ferramenta de apoio, confira sempre antes do uso prático.</p>
+  </footer>
+
+  <script>
+    const resultadoEl = document.getElementById("resultado");
+    const historicoSecao = document.getElementById("historicoSecao");
+    const historicoLista = document.getElementById("historicoLista");
+
+    document.getElementById("calcularBtn").addEventListener("click", calcular);
+    document.getElementById("salvarBtn").addEventListener("click", salvarResultado);
+    document.getElementById("historicoBtn").addEventListener("click", mostrarHistorico);
+
+    function calcular() {
+      const ci = parseFloat(document.getElementById("concInicial").value);
+      const cf = parseFloat(document.getElementById("concFinal").value);
+      const vf = parseFloat(document.getElementById("volFinal").value);
+      const vs = parseFloat(document.getElementById("volSolvente").value);
+
+      if (isNaN(ci) || isNaN(cf) || (isNaN(vf) && isNaN(vs))) {
+        resultadoEl.textContent = "⚠️ Preencha corretamente todos os campos necessários.";
+        return;
+      }
+
+      if (cf >= ci) {
+        resultadoEl.textContent = "⚠️ A concentração final deve ser menor que a inicial.";
+        return;
+      }
+
+      let volInicial, volSolvente, volFinal;
+
+      if (!isNaN(vf)) {
+        volInicial = (cf * vf) / ci;
+        volSolvente = vf - volInicial;
+        volFinal = vf;
+      } else {
+        volInicial = (vs * cf) / (ci - cf);
+        volFinal = volInicial + vs;
+        volSolvente = vs;
+      }
+
+      resultadoEl.innerHTML = `
+        <strong>Resultados do cálculo:</strong><br>
+        ➤ Volume da solução inicial: <b>${volInicial.toFixed(2)} mL</b><br>
+        ➤ Volume de solvente: <b>${volSolvente.toFixed(2)} mL</b><br>
+        ➤ Volume final: <b>${volFinal.toFixed(2)} mL</b>
+      `;
+    }
+
+    function salvarResultado() {
+      const texto = resultadoEl.innerText;
+      if (texto.includes("Resultados")) {
+        const data = new Date().toLocaleString();
+        const entrada = { data, texto };
+        let historico = JSON.parse(localStorage.getItem("historicoDil")) || [];
+        historico.push(entrada);
+        localStorage.setItem("historicoDil", JSON.stringify(historico));
+        alert("✅ Resultado salvo com sucesso!");
+      } else {
+        alert("⚠️ Calcule antes de salvar.");
+      }
+    }
+
+    function mostrarHistorico() {
+      const historico = JSON.parse(localStorage.getItem("historicoDil")) || [];
+      historicoLista.innerHTML = "";
+      if (historico.length === 0) {
+        historicoLista.innerHTML = "<li>Nenhum cálculo salvo ainda.</li>";
+      } else {
+        historico.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `[${item.data}] ${item.texto}`;
+          historicoLista.appendChild(li);
+        });
+      }
+      historicoSecao.style.display = "block";
+    }
+  </script>
+</body>
+</html>
